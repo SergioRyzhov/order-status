@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  api_gateway:
+    build:
+      context: ./services/api_gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - kafka
+
+  kafka:
+    image: bitnami/kafka:latest
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+
+  message_router:
+    build:
+      context: ./services/message_router
+    depends_on:
+      - kafka
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  rabbitmq_worker:
+    build:
+      context: ./services/rabbitmq_worker
+    depends_on:
+      - rabbitmq
