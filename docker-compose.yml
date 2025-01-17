@@ -8,6 +8,8 @@ services:
       - "8000:8000"
     depends_on:
       - kafka
+    volumes:
+      - ./services/api_gateway:/app
 
   kafka:
     image: bitnami/kafka:latest
@@ -34,6 +36,8 @@ services:
     depends_on:
       - kafka
       - rabbitmq
+    volumes:
+      - ./services/message_router:/app
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -49,3 +53,5 @@ services:
       context: ./services/rabbitmq_worker
     depends_on:
       - rabbitmq
+    volumes:
+      - ./services/rabbitmq_worker:/app
