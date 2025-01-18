@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   api_gateway:
+    container_name: api_gateway
     build:
       context: ./services/api_gateway
     ports:
@@ -10,8 +11,13 @@ services:
       - kafka
     volumes:
       - ./services/api_gateway:/app
+    environment:
+      - KAFKA_BROKER=kafka:9092
+    networks:
+      - app_network
 
   kafka:
+    container_name: kafka
     image: bitnami/kafka:latest
     environment:
       - KAFKA_BROKER_ID=1
@@ -22,15 +28,21 @@ services:
       - "9092:9092"
     depends_on:
       - zookeeper
+    networks:
+      - app_network
 
   zookeeper:
+    container_name: zookeeper
     image: bitnami/zookeeper:latest
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
     ports:
       - "2181:2181"
+    networks:
+      - app_network
 
   message_router:
+    container_name: message_router
     build:
       context: ./services/message_router
     depends_on:
@@ -40,6 +52,7 @@ services:
       - ./services/message_router:/app
 
   rabbitmq:
+    container_name: rabbitmq
     image: rabbitmq:3-management
     ports:
       - "5672:5672"
@@ -49,9 +62,14 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
 
   rabbitmq_worker:
+    container_name: rabbitmq_worker
     build:
       context: ./services/rabbitmq_worker
     depends_on:
       - rabbitmq
     volumes:
       - ./services/rabbitmq_worker:/app
+
+networks:
+  app_network:
+    driver: bridge

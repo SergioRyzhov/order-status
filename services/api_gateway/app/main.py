@@ -1,7 +1,6 @@
 from fastapi import FastAPI
+from app.routers import orders
 
 app = FastAPI()
 
-@app.get("/")
-def read_root():
-    return {"message": "API Gateway is running!"}
+app.include_router(orders.router, prefix='/api/v1')
