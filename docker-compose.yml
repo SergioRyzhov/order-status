@@ -50,6 +50,13 @@ services:
       - rabbitmq
     volumes:
       - ./services/message_router:/app
+    environment:
+      KAFKA_BROKER: kafka:9092
+      KAFKA_TOPIC: topic_orders
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_QUEUE: queue_orders
+    networks:
+      - app_network
 
   rabbitmq:
     container_name: rabbitmq
@@ -60,6 +67,8 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - app_network
 
   rabbitmq_worker:
     container_name: rabbitmq_worker
@@ -69,6 +78,8 @@ services:
       - rabbitmq
     volumes:
       - ./services/rabbitmq_worker:/app
+    networks:
+      - app_network
 
 networks:
   app_network:

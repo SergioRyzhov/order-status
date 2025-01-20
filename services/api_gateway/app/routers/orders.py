@@ -19,7 +19,7 @@ class OrderBase(BaseModel):
 async def create_order(order: OrderBase, db: Session = Depends(get_db)):
     try:
         saved_order = save_order(db, order.dict())
-        send_to_kafka('orders', order.dict())
+        send_to_kafka('topic_orders', order.dict())
         return {'status': 'success', 'order_id': saved_order.id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f'Failed to process order: {str(e)}')
@@ -28,7 +28,7 @@ async def create_order(order: OrderBase, db: Session = Depends(get_db)):
 async def get_all_orders(db: Session = Depends(get_db)):
     try:
         orders = db.query(Order).all()
-        return {"oreders": [OrderBase.from_orm(order) for order in orders]}
+        return {'orders': [OrderBase.from_orm(order) for order in orders]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f'Failed to fetch orders: {str(e)}')
 
